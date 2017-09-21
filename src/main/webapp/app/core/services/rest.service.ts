@@ -81,7 +81,7 @@ const apis: { [entity: string]: EntityConfig } = {
         url: 'claims'
     },
     claimRebuttal: {
-        url: 'claimRebuttals'
+        url: 'claim-rebuttals'
     },
     comment: {
         url: 'comments',
