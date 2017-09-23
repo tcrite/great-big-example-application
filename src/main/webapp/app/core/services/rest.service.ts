@@ -53,15 +53,15 @@ const apis: { [entity: string]: EntityConfig } = {
                 return `${config.apiUrl}/articles/${slug}`;
             },
             method: (article, state) => {
-                if (Object.keys(article).length === 2 && article.favorited === true) {
+                if (article.favorited === true) {
                     return 'post';
                 }
-                if (Object.keys(article).length === 2 && article.favorited === false) {
+                if (article.favorited === false) {
                     return 'delete';
                 }
                 return 'put';
             },
-            options: (article, state, query) => (Object.keys(article).length === 2 && typeof article.favorited !== 'undefined') ? null : article,
+            options: (article, state, query) => (typeof article.favorited !== 'undefined') ? null : article,
             response: (resp, article) => ({ id: article.id, ...resp })  // the slug could be different if the title changed
         },
         // getEntity: {
@@ -116,10 +116,10 @@ const apis: { [entity: string]: EntityConfig } = {
         url: 'profiles',
         update: {
             method: (profile, state) => {
-                if (Object.keys(profile).length === 2 && profile.following === true) {
+                if (profile.following === true) {
                     return 'post';
                 }
-                if (Object.keys(profile).length === 2 && profile.following === false) {
+                if (profile.following === false) {
                     return 'delete';
                 }
                 return 'put';
@@ -131,7 +131,7 @@ const apis: { [entity: string]: EntityConfig } = {
                 }
                 return `${config.apiUrl}/profiles`;
             },
-            options: (profile, state, query) => (Object.keys(profile).length === 2 && typeof profile.following !== 'undefined') ? null : profile
+            options: (profile, state, query) => (typeof profile.following !== 'undefined') ? null : profile
         },
         getEntities: {
             url: (profile, state, query) => {
