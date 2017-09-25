@@ -227,7 +227,7 @@ export function loadFromRemote$(actions$: PayloadActions, slice: keyof RootState
                 }
                 return o
                     .takeUntil(nextSearch$)
-                    .mergeMap((responseEntities) => Observable.of(new EntityActions.LoadAllSuccess(slice, responseEntities)))
+                    .mergeMap((responseObject) => Observable.of(new EntityActions.LoadAllSuccess(slice, responseObject)))
                     .catch((err) => {
                         console.log(err);
                         return Observable.of(new EntityActions.LoadAllFail(slice, null));
@@ -236,7 +236,7 @@ export function loadFromRemote$(actions$: PayloadActions, slice: keyof RootState
 
             // Then this happens
             // for actions.LOAD_ALL_SUCCESS - dispatch a LoadSuccess for each entity returned
-            else {
+            else { // action.type === typeFor(slice, actions.LOAD_ALL_SUCCESS)
                 if (Array.isArray(action.payload)) {
                     o = Observable.from(action.payload);
                 } else {

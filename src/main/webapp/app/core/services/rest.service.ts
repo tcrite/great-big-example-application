@@ -25,7 +25,7 @@ type APIConfig = {
     method?: ((entity?: any, state?: RootState) => string) | string,
     url?: ((entity?: any, state?: RootState, query?: QueryPayload, slice?: keyof RootState) => string) | string,
     options?: (entity?: any, state?: RootState, query?: QueryPayload) => RequestOptionsArgs,
-    response?: (resp: any, entity?: any) => any
+    response?: (resp: any, entity?: any, state?: RootState, query?: QueryPayload) => any
 }
 
 type EntityConfig = {
@@ -97,6 +97,15 @@ const apis: { [entity: string]: EntityConfig } = {
             url: (comment: Comment, state: RootState) => {
                 const slug = comment.articleId;
                 return `${config.apiUrl}/articles/${slug}/comments/${comment.id}`;
+            }
+        },
+        getEntities: {
+            url: (comment: Comment, state: RootState, query: QueryPayload) => {
+                const slug = query['slug'];
+                return `${config.apiUrl}/articles/${slug}/comments`;
+            },
+            response: (resp, comment, state, query) => {
+                return resp.entities.map((comment) => ({ articleId: query['slug'], ...comment }));
             }
         }
     },
@@ -234,7 +243,7 @@ export class RESTService implements DataService {
 
     private getResponse(slice: keyof RootState, state: RootState, entity: any, query: QueryPayload, job: string): any {
         return (resp: any) => {
-            return apis[slice][job] && (typeof apis[slice][job].response === 'function') && apis[slice][job].response(resp, entity)
+            return apis[slice][job] && (typeof apis[slice][job].response === 'function') && apis[slice][job].response(resp, entity, state, query)
                 || resp;
         }
     }
@@ -332,11 +341,14 @@ export class RESTService implements DataService {
             throw new Error('Bad response status: ' + res.status);
         }
 
-        const obj =
+        let obj =
             (res && !!res._body && res.json()) ||
             res.data ||
             { id: res.url.match(/[^\/]+$/)[0] };
 
+        if (Array.isArray(obj)) {
+            obj = { entities: obj, totalItems: +res.headers.get('X-Total-Count') }
+        }
         return obj;
     }
 
